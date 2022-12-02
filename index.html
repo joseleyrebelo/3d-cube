@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Contilio Three.js Code Challenge</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script>
+      // Defines max framerate
+      const MAX_FPS = 60;
+
+      // Variables that help verify if a draw/render should be tried (milliseconds)
+      let timestamp,
+        lastTimestamp = Date.now();
+      let frameTime = 1000 / MAX_FPS;
+
+      // Velocities (in relation to a second)
+      // - Necessary to allow framerate declaration from affecting animation
+      const velocityRotationX = 0.2;
+      const velocityRotationY = 0.4;
+
+      let width = window.innerWidth;
+      let height = window.innerHeight;
+
+      let renderer = new THREE.WebGLRenderer();
+      renderer.setSize(width, height);
+      document.body.appendChild(renderer.domElement);
+      let scene = new THREE.Scene();
+      let camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000);
+      camera.position.z = 75;
+      scene.add(camera);
+      let light = new THREE.PointLight(0xffffff);
+      light.position.set(-100, 200, 100);
+      scene.add(light);
+      let group = new THREE.Group();
+      for (let x = 0; x < 30; x++) {
+        for (let y = 0; y < 30; y++) {
+          for (let z = 0; z < 30; z++) {
+            let geometry = new THREE.BoxGeometry(0.75, 0.75, 0.75);
+            let material = new THREE.MeshNormalMaterial();
+            let mesh = new THREE.Mesh(geometry, material);
+            mesh.position.set(x - 15, y - 15, z - 15);
+            group.add(mesh);
+          }
+        }
+      }
+      scene.add(group);
+      function resize() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        renderer.setSize(width, height);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+      }
+      function animate() {
+        requestAnimationFrame(animate);
+
+        // Updates the timestamp to now
+        // - Allows for the render condition to be met eventually
+        timestamp = Date.now();
+
+        const elapsedTime = timestamp - lastTimestamp; // (in milliseconds)
+        const elapsedTimeFraction = elapsedTime / 1000; // (in milliseconds)
+
+        // Updates the properties as per elapsed time - keeps velocity consistent
+        group.rotation.x += velocityRotationX * elapsedTimeFraction;
+        group.rotation.y += velocityRotationY * elapsedTimeFraction;
+
+        // If not yet frameTime, on elapsed time, exit function runtime
+        // - otherwise proceed to render and update lastTimestamp
+        if (elapsedTime < frameTime) return;
+
+        renderer.render(scene, camera);
+
+        lastTimestamp = timestamp;
+      }
+
+      resize();
+      animate();
+      window.addEventListener("resize", resize);
+    </script>
+  </body>
+</html>
