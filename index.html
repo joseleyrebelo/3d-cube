@@ -20,9 +20,9 @@
       const MAX_FPS = 60;
 
       // Variables that help verify if a draw/render should be tried (milliseconds)
+      const frameTime = 1000 / MAX_FPS;
       let timestamp,
         lastTimestamp = Date.now();
-      let frameTime = 1000 / MAX_FPS;
 
       // Velocities (in relation to a second)
       // - Necessary to allow framerate declaration from affecting animation
@@ -32,29 +32,41 @@
       let width = window.innerWidth;
       let height = window.innerHeight;
 
-      let renderer = new THREE.WebGLRenderer();
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(width, height);
+      renderer.setPixelRatio(window.devicePixelRatio * 0.5);
       document.body.appendChild(renderer.domElement);
-      let scene = new THREE.Scene();
-      let camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000);
+
+      const scene = new THREE.Scene();
+
+      const camera = new THREE.PerspectiveCamera(
+        45,
+        width / height,
+        0.1,
+        10000
+      );
       camera.position.z = 75;
       scene.add(camera);
-      let light = new THREE.PointLight(0xffffff);
+
+      const light = new THREE.PointLight(0xffffff);
       light.position.set(-100, 200, 100);
       scene.add(light);
-      let group = new THREE.Group();
+
+      const geometry = new THREE.BoxBufferGeometry(0.75, 0.75, 0.75);
+      const material = new THREE.MeshNormalMaterial();
+
+      const group = new THREE.Group();
       for (let x = 0; x < 30; x++) {
         for (let y = 0; y < 30; y++) {
           for (let z = 0; z < 30; z++) {
-            let geometry = new THREE.BoxGeometry(0.75, 0.75, 0.75);
-            let material = new THREE.MeshNormalMaterial();
-            let mesh = new THREE.Mesh(geometry, material);
+            const mesh = new THREE.Mesh(geometry, material);
             mesh.position.set(x - 15, y - 15, z - 15);
             group.add(mesh);
           }
         }
       }
       scene.add(group);
+
       function resize() {
         width = window.innerWidth;
         height = window.innerHeight;
